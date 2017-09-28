@@ -32,7 +32,10 @@ public class Game {
 
         pack = addSuperTrumps(pack);
         Collections.shuffle(pack);
-        System.out.println(String.format("Pack has %d cards", pack.size()));
+
+        for (Player player : players) {
+            player = new Player(dealHand(pack));
+        }
         // int numPlayers = getNumberInput(3, 5, "Enter number of players(3-5): ");
         // playGame(pack, numPlayers);
     }
