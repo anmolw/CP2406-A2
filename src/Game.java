@@ -48,8 +48,16 @@ public class Game {
         return players[currentPlayerID];
     }
 
+    public int getCurrentPlayerID() {
+        return currentPlayerID;
+    }
 
-    private static void displayLastCard(MineralCard card, int category) {
+    public String getCurrentCategory() {
+        return categories[category];
+    }
+
+
+    public String displayLastCard(MineralCard card, int category) {
         String output = "Last card played: " + card.getName() + " " + categories[category] + ": ";
         if (category == 0)
             output = output + card.getHardness();
@@ -61,12 +69,12 @@ public class Game {
             output = output + card.getCrustalAbundance();
         else if (category == 4)
             output = output + card.getEcoValue();
-        System.out.println(output);
+        return (output);
 
     }
 
 
-    private static Card getCardWithName(String name, ArrayList<Card> list) {
+    private Card getCardWithName(String name, ArrayList<Card> list) {
         for (Card card : list) {
             if (card.getName().equals(name))
                 return card;
@@ -74,7 +82,7 @@ public class Game {
         return null;
     }
 
-    private static boolean gameOver(Player[] players) {
+    private boolean gameOver(Player[] players) {
         int notEmpty = 0;
         for (Player player : players) {
             if (player.hand.size() > 0)
@@ -83,7 +91,7 @@ public class Game {
         return (notEmpty <= 1);
     }
 
-    private static boolean roundOver(Player[] players) {
+    private boolean roundOver(Player[] players) {
         int numPassed = 0;
         for (Player player : players) {
             if (player.hasPassed()) {

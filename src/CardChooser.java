@@ -17,12 +17,14 @@ public class CardChooser extends JPanel implements ActionListener {
         this.setLayout(new GridLayout(rows, 4));
         for (Card card: cards) {
             ImageIcon cardImage = new ImageIcon(card.getImage());
-            JButton imageButton = new JButton(cardImage);
+            JButton imageButton;
             if (game.isValidMove(card)) {
+                imageButton = new JButton(cardImage);
                 imageButton.addActionListener(this);
             }
             else {
-                // gray out card
+                cardImage = new ImageIcon(GrayFilter.createDisabledImage(cardImage.getImage()));
+                imageButton = new JButton(cardImage);
             }
             this.add(imageButton);
         }
