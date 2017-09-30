@@ -3,7 +3,7 @@ import java.awt.*;
 
 public class UIController {
 
-    Game game;
+    static Game game;
     GameWindow gameWindow;
     CardChooser chooserPanel;
 

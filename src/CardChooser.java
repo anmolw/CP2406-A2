@@ -16,7 +16,7 @@ public class CardChooser extends JPanel implements ActionListener {
         int rows = cards.size() / 4; // 4 cards in each row
         this.setLayout(new GridLayout(rows, 4));
         for (Card card: cards) {
-            ImageIcon cardImage = new ImageIcon(card.getImage());
+            ImageIcon cardImage = new ImageIcon(new ImageIcon(card.getImage()).getImage().getScaledInstance(260, 380, Image.SCALE_SMOOTH));
             JButton imageButton;
             if (game.isValidMove(card)) {
                 imageButton = new JButton(cardImage);
