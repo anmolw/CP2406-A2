@@ -14,7 +14,8 @@ public class Game {
     private int currentPlayerID;
     private int numPlayers;
     private int category;
-    ArrayList<Card> pack;
+    private ArrayList<Card> pack;
+    private boolean categoryChoice = true;
 
     private static HashMap<String, Integer> cleavageMap = new HashMap<>();
     private static HashMap<String, Integer> ecoMap = new HashMap<>();
@@ -44,6 +45,14 @@ public class Game {
         // playGame(pack, numPlayers);
     }
 
+    public int getNumPlayers() {
+        return numPlayers;
+    }
+
+    public Player[] getPlayers() {
+        return players;
+    }
+
     public Player getCurrentPlayer(){
         return players[currentPlayerID];
     }
@@ -52,10 +61,23 @@ public class Game {
         return currentPlayerID;
     }
 
+    public String[] getCategories() {
+        return categories;
+    }
+
     public String getCurrentCategory() {
         return categories[category];
     }
 
+    public void passTurn() {
+        players[currentPlayerID].setPassed(true);
+        players[currentPlayerID].hand.add(pack.get(0));
+        pack.remove(0);
+    }
+
+    private void advanceTurn() {
+
+    }
 
     public String displayLastCard(MineralCard card, int category) {
         String output = "Last card played: " + card.getName() + " " + categories[category] + ": ";
@@ -73,8 +95,7 @@ public class Game {
 
     }
 
-
-    private Card getCardWithName(String name, ArrayList<Card> list) {
+    public Card getCardWithName(String name, ArrayList<Card> list) {
         for (Card card : list) {
             if (card.getName().equals(name))
                 return card;
@@ -147,6 +168,10 @@ public class Game {
             lastCard = card;
             players[currentPlayerID].hand.remove(card);
         }
+    }
+
+    public boolean hasCategoryChoice() {
+        return categoryChoice;
     }
 
     public boolean isValidMove(Card card) {

@@ -4,23 +4,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class CardChooser extends JPanel implements ActionListener {
+public class CardChooser extends JPanel {
 
-    UIController ui;
     Game game;
-    public CardChooser(ArrayList<Card> cards, UIController ui, Game game) {
+    public CardChooser(ArrayList<Card> cards, Game game, GameWindow ui) {
         super();
-        this.ui = ui;
         this.game = game;
 
-        int rows = cards.size() / 4; // 4 cards in each row
-        this.setLayout(new GridLayout(rows, 4));
+        int rows = cards.size() / 3; // 3 cards in each row
+        this.setLayout(new GridLayout(rows, 3));
         for (Card card: cards) {
-            ImageIcon cardImage = new ImageIcon(new ImageIcon(card.getImage()).getImage().getScaledInstance(260, 380, Image.SCALE_SMOOTH));
+            ImageIcon cardImage = new ImageIcon(new ImageIcon(card.getImage()).getImage().getScaledInstance(240, 360, Image.SCALE_SMOOTH));
             JButton imageButton;
             if (game.isValidMove(card)) {
                 imageButton = new JButton(cardImage);
-                imageButton.addActionListener(this);
+                imageButton.addActionListener(ui);
+                imageButton.setActionCommand("Card "+card.getName());
             }
             else {
                 cardImage = new ImageIcon(GrayFilter.createDisabledImage(cardImage.getImage()));
@@ -29,9 +28,5 @@ public class CardChooser extends JPanel implements ActionListener {
             this.add(imageButton);
         }
         this.setVisible(true);
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        System.out.println("Image clicked on");
     }
 }
