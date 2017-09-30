@@ -11,7 +11,9 @@ public class Game {
     private static final String filename = "card.txt";
     private Card lastCard;
     private Player[] players;
+    private int currentPlayerID;
     private int numPlayers;
+    private int category;
     ArrayList<Card> pack;
 
     private static HashMap<String, Integer> cleavageMap = new HashMap<>();
@@ -33,11 +35,17 @@ public class Game {
         pack = addSuperTrumps(pack);
         Collections.shuffle(pack);
 
-        for (Player player : players) {
-            player = new Player(dealHand(pack));
+        for(int i = 0; i < numPlayers; i++) {
+            players[i] = new Player(dealHand(pack));
         }
+
+        currentPlayerID = 0;
         // int numPlayers = getNumberInput(3, 5, "Enter number of players(3-5): ");
         // playGame(pack, numPlayers);
+    }
+
+    public Player getCurrentPlayer(){
+        return players[currentPlayerID];
     }
 
 
@@ -112,18 +120,40 @@ public class Game {
 
     private static ArrayList<Card> addSuperTrumps(ArrayList<Card> pack) {
         Card[] superTrumpList = {
-                new SuperTrumpCard("The Mineralogist", "images/Slide", 2, "changes the trumps category to Cleavage"),
-                new SuperTrumpCard("The Geologist", "images/Slide", 5, "change to trumps category of your choice"),
-                new SuperTrumpCard("The Geophysicist", "images/Slide", 1, "changes the trumps category to Specific Gravity"),
-                new SuperTrumpCard("The Petrologist", "images/Slide", 3, "changes the trumps category to Crustal Abundance"),
-                new SuperTrumpCard("The Miner", "images/Slide", 4, "changes the trumps category to Economic Value"),
-                new SuperTrumpCard("The Gemmologist", "images/Slide", 0, "changes the trumps category to Hardness")};
+                new SuperTrumpCard("The Mineralogist", "images/Slide58.jpg", 2, "changes the trumps category to Cleavage"),
+                new SuperTrumpCard("The Geologist", "images/Slide60.jpg", 5, "change to trumps category of your choice"),
+                new SuperTrumpCard("The Geophysicist", "images/Slide59.jpg", 1, "changes the trumps category to Specific Gravity"),
+                new SuperTrumpCard("The Petrologist", "images/Slide56,jpg", 3, "changes the trumps category to Crustal Abundance"),
+                new SuperTrumpCard("The Miner", "images/Slide55.jpg", 4, "changes the trumps category to Economic Value"),
+                new SuperTrumpCard("The Gemmologist", "images/Slide57.jpg", 0, "changes the trumps category to Hardness")};
 
         pack.addAll(Arrays.asList(superTrumpList));
         return pack;
     }
 
-    private static boolean isValidMove(Card card, Card lastCard, int category) {
+    public void playTurn(Card card) {
+        if (card instanceof SuperTrumpCard) {
+            // TODO: Supertrump logic
+        }
+        else if(isValidMove(card)) {
+            lastCard = card;
+            players[currentPlayerID].hand.remove(card);
+        }
+    }
+
+    public boolean isValidMove(Card card) {
+        if (lastCard == null) {
+            return true;
+        }
+        else if (lastCard instanceof SuperTrumpCard) {
+            return true;
+        }
+        else if(lastCard instanceof MineralCard && !(card instanceof SuperTrumpCard)) {
+            return (isGreater(category, (MineralCard) card, (MineralCard) lastCard));
+        }
+        else if(card instanceof SuperTrumpCard) {
+            return true;
+        }
         return false;
     }
 
