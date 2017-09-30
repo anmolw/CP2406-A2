@@ -6,10 +6,11 @@ import java.awt.event.ActionListener;
 public class GameWindow extends JFrame implements ActionListener {
 
     Game game;
-    JPanel playerInfoPanel;
+    JPanel infoPanel;
     CardChooser chooserPanel;
     JButton passButton;
     JPanel topPanel;
+    JLabel lastCard;
     JLabel currentTurn;
 
     public GameWindow(Game game) {
@@ -23,36 +24,42 @@ public class GameWindow extends JFrame implements ActionListener {
         currentTurn = new JLabel("Player 1's Turn");
         topPanel.add(currentTurn);
         passButton = new JButton("Pass");
-        playerInfoPanel = new JPanel(new GridLayout(game.getNumPlayers(), 1));
+        passButton.addActionListener(this);
+        topPanel.add(passButton);
+        infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         this.updatePlayerInfo();
         this.add(topPanel, BorderLayout.NORTH);
-        this.add(playerInfoPanel, BorderLayout.WEST);
+        this.add(infoPanel, BorderLayout.WEST);
         chooserPanel = new CardChooser(game.getCurrentPlayer().hand, game, this);
         this.add(chooserPanel, BorderLayout.CENTER);
         this.setVisible(true);
     }
 
     private void updatePlayerInfo() {
-        playerInfoPanel.removeAll();
+        infoPanel.removeAll();
         int count = 1;
-        for (Player player: game.getPlayers()) {
-            JLabel playerLabel = new JLabel("Player "+count++);
-            playerInfoPanel.add(playerLabel);
+        for (Player player : game.getPlayers()) {
+            JLabel playerLabel = new JLabel("Player " + count++);
+            JLabel cardCount = new JLabel("Cards: " + player.hand.size());
+            String passed = (player.hasPassed()) ? "Yes" : "No";
+            JLabel hasPassed = new JLabel("Passed: " + passed);
+            infoPanel.add(playerLabel);
+            infoPanel.add(cardCount);
+            infoPanel.add(hasPassed);
         }
+        this.validate();
     }
 
     public void updateTopPanel(Game game) {
 
     }
 
-   private void nextTurn() {
-        if (chooserPanel != null) {
-            this.remove(chooserPanel);
-        }
-        currentTurn.setText("Player "+game.getCurrentPlayerID()+1+"'s Turn");
-        chooserPanel = new CardChooser(game.getCurrentPlayer().hand, game, this);
-        this.add(chooserPanel, BorderLayout.CENTER);
-        this.validate();
+    private void nextTurn() {
+        currentTurn.setText("Player " + (game.getCurrentPlayerID() + 1) + "'s Turn");
+        chooserPanel.update(game.getCurrentPlayer().hand);
+        this.updatePlayerInfo();
+        this.pack();
     }
 
     private void chooseCategory() {
@@ -63,8 +70,7 @@ public class GameWindow extends JFrame implements ActionListener {
         if (event.getActionCommand().equals("Pass")) {
             game.passTurn();
             nextTurn();
-        }
-        else if (event.getActionCommand().startsWith("Card")) {
+        } else if (event.getActionCommand().startsWith("Card")) {
             String cardChoice = event.getActionCommand().substring(5);
             System.out.println(cardChoice);
             game.playTurn(game.getCardWithName(cardChoice, game.getCurrentPlayer().hand));

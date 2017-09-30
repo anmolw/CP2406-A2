@@ -13,9 +13,10 @@ public class Game {
     private Player[] players;
     private int currentPlayerID;
     private int numPlayers;
-    private int category;
+    private int category = -1;
     private ArrayList<Card> pack;
     private boolean categoryChoice = true;
+    int lastTrumpPlayerID;
 
     private static HashMap<String, Integer> cleavageMap = new HashMap<>();
     private static HashMap<String, Integer> ecoMap = new HashMap<>();
@@ -66,6 +67,9 @@ public class Game {
     }
 
     public String getCurrentCategory() {
+        if (category == -1) {
+            return "None";
+        }
         return categories[category];
     }
 
@@ -73,10 +77,36 @@ public class Game {
         players[currentPlayerID].setPassed(true);
         players[currentPlayerID].hand.add(pack.get(0));
         pack.remove(0);
+        advanceTurn();
     }
 
     private void advanceTurn() {
+        int curr = currentPlayerID;
+        boolean stop = false;
+        while(!stop && !gameOver()) {
+            if (curr == numPlayers - 1) {
+                curr = 0;
+            }
+            else {
+                curr++;
+            }
+            if (!players[curr].hasPassed() && players[curr].hand.size() >= 1) {
+                currentPlayerID = curr;
+                stop = true;
+            }
+        }
+        if(roundOver()) {
+            newRound();
+        }
+    }
 
+    private void newRound() {
+        lastCard = null;
+        category = -1;
+        categoryChoice = true;
+        for (int i = 0; i < players.length; i++) {
+            players[i].setPassed(false);
+        }
     }
 
     public String displayLastCard(MineralCard card, int category) {
@@ -103,7 +133,7 @@ public class Game {
         return null;
     }
 
-    private boolean gameOver(Player[] players) {
+    private boolean gameOver() {
         int notEmpty = 0;
         for (Player player : players) {
             if (player.hand.size() > 0)
@@ -112,7 +142,7 @@ public class Game {
         return (notEmpty <= 1);
     }
 
-    private boolean roundOver(Player[] players) {
+    private boolean roundOver() {
         int numPassed = 0;
         for (Player player : players) {
             if (player.hasPassed()) {
@@ -152,7 +182,7 @@ public class Game {
                 new SuperTrumpCard("The Mineralogist", "images/Slide58.jpg", 2, "changes the trumps category to Cleavage"),
                 new SuperTrumpCard("The Geologist", "images/Slide60.jpg", 5, "change to trumps category of your choice"),
                 new SuperTrumpCard("The Geophysicist", "images/Slide59.jpg", 1, "changes the trumps category to Specific Gravity"),
-                new SuperTrumpCard("The Petrologist", "images/Slide56,jpg", 3, "changes the trumps category to Crustal Abundance"),
+                new SuperTrumpCard("The Petrologist", "images/Slide56.jpg", 3, "changes the trumps category to Crustal Abundance"),
                 new SuperTrumpCard("The Miner", "images/Slide55.jpg", 4, "changes the trumps category to Economic Value"),
                 new SuperTrumpCard("The Gemmologist", "images/Slide57.jpg", 0, "changes the trumps category to Hardness")};
 
@@ -162,11 +192,26 @@ public class Game {
 
     public void playTurn(Card card) {
         if (card instanceof SuperTrumpCard) {
-            // TODO: Supertrump logic
+            int trumpType = ((SuperTrumpCard) card).getTrumpType();
+            lastCard = card;
+            getCurrentPlayer().hand.remove(card);
+            if (trumpType != 5) {
+                category = trumpType;
+            }
+            else {
+                if (getCurrentPlayer().hand.size() > 1)
+                    categoryChoice = true;
+                else
+                    advanceTurn();
+            }
+            for (int i = 0; i < numPlayers; i++) {
+                players[i].setPassed(false);
+            }
         }
         else if(isValidMove(card)) {
             lastCard = card;
             players[currentPlayerID].hand.remove(card);
+            advanceTurn();
         }
     }
 
@@ -175,13 +220,16 @@ public class Game {
     }
 
     public boolean isValidMove(Card card) {
+        if (category == -1) {
+            return true;
+        }
         if (lastCard == null) {
             return true;
         }
         else if (lastCard instanceof SuperTrumpCard) {
             return true;
         }
-        else if(lastCard instanceof MineralCard && !(card instanceof SuperTrumpCard)) {
+        if(lastCard instanceof MineralCard && !(card instanceof SuperTrumpCard)) {
             return (isGreater(category, (MineralCard) card, (MineralCard) lastCard));
         }
         else if(card instanceof SuperTrumpCard) {
