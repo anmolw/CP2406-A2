@@ -104,6 +104,16 @@ public class GameWindow extends JFrame implements ActionListener {
                 chosenCard = card;
                 chooseCategory();
             }
+            else if (card instanceof SuperTrumpCard) {
+                if (((SuperTrumpCard) card).getTrumpType() == 5) {
+                    chosenCard = card;
+                    chooseCategory();
+                }
+                else {
+                    game.playTurn(card);
+                    nextTurn();
+                }
+            }
             else {
                 game.playTurn(card);
                 nextTurn();

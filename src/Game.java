@@ -218,14 +218,12 @@ public class Game {
             if (trumpType != 5) {
                 category = trumpType;
             } else {
-                if (getCurrentPlayer().hand.size() > 1)
-                    categoryChoice = true;
-                else
-                    advanceTurn();
+                categoryChoice = true;
             }
             for (int i = 0; i < numPlayers; i++) {
                 players[i].setPassed(false);
             }
+            advanceTurn();
         } else if (isValidMove(card)) {
             lastCard = card;
             players[currentPlayerID].hand.remove(card);
