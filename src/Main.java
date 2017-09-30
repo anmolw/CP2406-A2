@@ -1,6 +1,10 @@
 public class Main {
     public static void main(String[] args) {
-        Game game = new Game(3);
+        NumPlayersDialog prompt = new NumPlayersDialog();
+    }
+
+    public static void launchGame(int numPlayers) {
+        Game game = new Game(numPlayers);
         GameWindow ui = new GameWindow(game);
     }
 }
