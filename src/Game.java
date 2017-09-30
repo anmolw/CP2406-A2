@@ -16,7 +16,6 @@ public class Game {
     private int category = -1;
     private ArrayList<Card> pack;
     private boolean categoryChoice = true;
-    int lastTrumpPlayerID;
 
     private static HashMap<String, Integer> cleavageMap = new HashMap<>();
     private static HashMap<String, Integer> ecoMap = new HashMap<>();
@@ -37,7 +36,7 @@ public class Game {
         pack = addSuperTrumps(pack);
         Collections.shuffle(pack);
 
-        for(int i = 0; i < numPlayers; i++) {
+        for (int i = 0; i < numPlayers; i++) {
             players[i] = new Player(dealHand(pack));
         }
 
@@ -54,7 +53,7 @@ public class Game {
         return players;
     }
 
-    public Player getCurrentPlayer(){
+    public Player getCurrentPlayer() {
         return players[currentPlayerID];
     }
 
@@ -80,14 +79,23 @@ public class Game {
         advanceTurn();
     }
 
+    public void setCategory(String cat) {
+        for (int i = 0; i < categories.length; i++) {
+            if (categories[i].equals(cat)) {
+                category = i;
+                return;
+            }
+        }
+    }
+
     private void advanceTurn() {
+        categoryChoice = false;
         int curr = currentPlayerID;
         boolean stop = false;
-        while(!stop && !gameOver()) {
+        while (!stop && !gameOver()) {
             if (curr == numPlayers - 1) {
                 curr = 0;
-            }
-            else {
+            } else {
                 curr++;
             }
             if (!players[curr].hasPassed() && players[curr].hand.size() >= 1) {
@@ -95,7 +103,7 @@ public class Game {
                 stop = true;
             }
         }
-        if(roundOver()) {
+        if (roundOver()) {
             newRound();
         }
     }
@@ -109,19 +117,27 @@ public class Game {
         }
     }
 
-    public String displayLastCard(MineralCard card, int category) {
-        String output = "Last card played: " + card.getName() + " " + categories[category] + ": ";
-        if (category == 0)
-            output = output + card.getHardness();
-        else if (category == 1)
-            output = output + card.getGravity();
-        else if (category == 2)
-            output = output + card.getCleavage();
-        else if (category == 3)
-            output = output + card.getCrustalAbundance();
-        else if (category == 4)
-            output = output + card.getEcoValue();
+    public String displayLastCard() {
+        if (lastCard == null) {
+            return "";
+        }
+        String output = "";
+        if (lastCard instanceof MineralCard) {
+            MineralCard lC = (MineralCard) lastCard;
+            output = "Last card played: " + lastCard.getName() + " " + categories[category] + ": ";
+            if (category == 0)
+                output = output + lC.getHardness();
+            else if (category == 1)
+                output = output + lC.getGravity();
+            else if (category == 2)
+                output = output +  lC.getCleavage();
+            else if (category == 3)
+                output = output + lC.getCrustalAbundance();
+            else if (category == 4)
+                output = output + lC.getEcoValue();
+        }
         return (output);
+
 
     }
 
@@ -133,7 +149,7 @@ public class Game {
         return null;
     }
 
-    private boolean gameOver() {
+    public boolean gameOver() {
         int notEmpty = 0;
         for (Player player : players) {
             if (player.hand.size() > 0)
@@ -142,14 +158,18 @@ public class Game {
         return (notEmpty <= 1);
     }
 
-    private boolean roundOver() {
+    public boolean roundOver() {
         int numPassed = 0;
+        int numActive = 0;
         for (Player player : players) {
             if (player.hasPassed()) {
                 numPassed++;
             }
+            if (player.hand.size() >= 1) {
+                numActive++;
+            }
         }
-        return (numPassed >= players.length - 1);
+        return (numPassed >= numActive - 1);
     }
 
     private static ArrayList<Card> readCards(String filename) throws FileNotFoundException {
@@ -197,8 +217,7 @@ public class Game {
             getCurrentPlayer().hand.remove(card);
             if (trumpType != 5) {
                 category = trumpType;
-            }
-            else {
+            } else {
                 if (getCurrentPlayer().hand.size() > 1)
                     categoryChoice = true;
                 else
@@ -207,8 +226,7 @@ public class Game {
             for (int i = 0; i < numPlayers; i++) {
                 players[i].setPassed(false);
             }
-        }
-        else if(isValidMove(card)) {
+        } else if (isValidMove(card)) {
             lastCard = card;
             players[currentPlayerID].hand.remove(card);
             advanceTurn();
@@ -225,14 +243,12 @@ public class Game {
         }
         if (lastCard == null) {
             return true;
-        }
-        else if (lastCard instanceof SuperTrumpCard) {
+        } else if (lastCard instanceof SuperTrumpCard) {
             return true;
         }
-        if(lastCard instanceof MineralCard && !(card instanceof SuperTrumpCard)) {
+        if (lastCard instanceof MineralCard && !(card instanceof SuperTrumpCard)) {
             return (isGreater(category, (MineralCard) card, (MineralCard) lastCard));
-        }
-        else if(card instanceof SuperTrumpCard) {
+        } else if (card instanceof SuperTrumpCard) {
             return true;
         }
         return false;
@@ -285,7 +301,7 @@ public class Game {
         } else if (category == 2) {
             return (cleavageMap.get(card1.getCleavage()) > cleavageMap.get((card2.getCleavage())));
         } else if (category == 3) {
-            return (crustalMap.get(card1.getCrustalAbundance()) > cleavageMap.get((card2.getCrustalAbundance())));
+            return (crustalMap.get(card1.getCrustalAbundance()) > crustalMap.get((card2.getCrustalAbundance())));
         } else if (category == 4) {
             return (ecoMap.get(card1.getEcoValue()) > ecoMap.get(card2.getEcoValue()));
         }

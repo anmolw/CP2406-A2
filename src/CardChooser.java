@@ -35,4 +35,12 @@ public class CardChooser extends JPanel {
         }
         this.validate();
     }
+
+    public void disableAllButtons() {
+        for (Component comp: this.getComponents()) {
+            if (comp instanceof JButton) {
+                ((JButton) comp).removeActionListener(ui);
+            }
+        }
+    }
 }
